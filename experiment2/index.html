@@ -2,7 +2,7 @@
 <html>
 <head>
 	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment X - Subject/Topic</title>
+	<title>Experiment 2 - Living Impressions</title>
 
 	<!-- Use UTF character set, a good idea with any webpage -->
 	<meta charset="UTF-8" />
@@ -22,8 +22,6 @@
 
 	<!-- Link to javascript files - DEFER waits until all elements are rendered -->
     <script type="text/javascript" src="../js/site.js" DEFER></script>
-	<!-- Use me for a JavaScript OOP Project -->
-	<script type="text/javascript" src="./js/project.js" DEFER></script>
 	<!-- Use me for a p5.js project -->
 	<script type="text/javascript" src="./js/sketch.js" DEFER></script>
 </head>
@@ -32,7 +30,7 @@
 	<main id="content">
 		<section>
 
-			<h1>Experiment X - Subject/Topic</h1>
+			<h1>Experiment 2 - Living Impressions</h1>
 
 			<div class="minor-section">
 				<div id="canvas-container">
@@ -45,17 +43,17 @@
 
 			<div class="minor-section">
 				<h2>Description</h2>
-				<p>What are you trying to acomplish with this experiment?</p>
+				<p>I wanted to create a beach scene that depicts waves crashing into the beach. To add more details into the scene, I wanted to make the scene to be on a sunset while having a boat moving with the waves in the horizon. I mainly wanted to create this sort of scene because I find the ocean to be relaxing to look at, and I thought that experimenting with waves crashing onto the beach would look nice and feel nice.</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Technical</h2>
-				<p>Describe in detail what you did technically and how it works?</p>
+				<p>There are essentially 7 layers that make up this scene. The first is the sandy part of the beach, which is essentially a single color. The next layer is basically all of the different waves that are seen here, where we have the waves crashing onto the beach, the waves on the shore of the beach, and the waves seen in the horizon of the scene. All of the waves essentially is one large curve made up of different points that are controlled using noise. The closer, more erratic waves, use both more points and have a bigger fluxuation in the noise to make it more chaotic, while the opposite is true for the more distant waves to give a sense of distance. For the waves that actually crash onto the beach, it is actually a wave that has it's vertical anchor moving downwards. As the waves goes lower, its alpha slowy dissapears. Instead of implementing a timer, the waver actually keeps going lower until it resets, it is just fully invisible at a certain time. The boat is actually built with a function which takes the y position (generally) of the middle of the horizon wave, giving it its motion</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
+				<p>The most difficult aspect of this experiment was trying to figure out how to represent the waves. I would need a P5 object that created a curve and can influence the curve with noise, which is a feature I was not familiar with. One issue I ran into with noise was I actually did not realize that noise had both a position and time arguement, and thought it was purely just positional, which would have been helpful to know earlier.</p>
 			</div>
 
 		</section>

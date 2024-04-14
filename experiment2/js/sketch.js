@@ -1,79 +1,217 @@
-// sketch.js - purpose and description here
-// Author: Your Name
-// Date:
+/* exported setup, draw */
 
-// Here is how you might set up an OOP p5.js project
-// Note that p5.js looks for a file called sketch.js
+let seed = 239;
+let WIDTH = 750;
+let HEIGHT = 750;
+const NUM_WAVE_POINTS = 25;
+const SHORE = -25;
+const HORIZON = 225;
+let yOffset = 0;
+let noiseChange = 0;
 
-// Constants - User-servicable parts
-// In a longer project I like to put these in a separate file
-const VALUE1 = 1;
-const VALUE2 = 2;
+const oceanColor = [102, 205, 217];
+const waveColor = [167, 228, 242];
+const waveAccents = [206, 222, 242];
+const sandColor = [242, 213, 187];
+const sunsetColor = [242, 148, 114];
+const sunColor = [255, 197, 77];
+const boatColor = [180, 128, 40];
 
-// Globals
-let myInstance;
-let canvasContainer;
-var centerHorz, centerVert;
-
-class MyClass {
-    constructor(param1, param2) {
-        this.property1 = param1;
-        this.property2 = param2;
-    }
-
-    myMethod() {
-        // code to run when method is called
-    }
-}
-
-function resizeScreen() {
-  centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
-  centerVert = canvasContainer.height() / 2; // Adjusted for drawing logic
-  console.log("Resizing...");
-  resizeCanvas(canvasContainer.width(), canvasContainer.height());
-  // redrawCanvas(); // Redraw everything based on new size
-}
-
-// setup() function is called once when the program starts
 function setup() {
   // place our canvas, making it fit our container
   canvasContainer = $("#canvas-container");
+  WIDTH = canvasContainer.width()
+  HEIGHT = canvasContainer.height()
   let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
   canvas.parent("canvas-container");
-  // resize canvas is the page is resized
-
-  // create an instance of the class
-  myInstance = new MyClass("VALUE1", "VALUE2");
-
-  $(window).resize(function() {
-    resizeScreen();
-  });
-  resizeScreen();
+  
+  frameRate(60);
+  //createCanvas(WIDTH, HEIGHT);
 }
 
-// draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  background(220);    
-  // call a method on the instance
-  myInstance.myMethod();
+  randomSeed(seed);
+  background(sandColor);
 
-  // Set up rotation for the rectangle
-  push(); // Save the current drawing context
-  translate(centerHorz, centerVert); // Move the origin to the rectangle's center
-  rotate(frameCount / 100.0); // Rotate by frameCount to animate the rotation
-  fill(234, 31, 81);
+  fill(oceanColor);
   noStroke();
-  rect(-125, -125, 250, 250); // Draw the rectangle centered on the new origin
-  pop(); // Restore the original drawing context
+  rect(0, 0, WIDTH, HEIGHT / 2 - 20 - SHORE);
 
-  // The text is not affected by the translate and rotate
-  fill(255);
-  textStyle(BOLD);
-  textSize(140);
-  text("p5*", centerHorz - 105, centerVert + 40);
+  drawWave(yOffset);
+  drawShore();
+
+  fill(sunsetColor);
+  rect(0, 0, WIDTH, HORIZON);
+
+  fill(sunColor);
+  ellipse(WIDTH / 2, 175, 150);
+
+  const boatPos = drawHorizon();
+
+  createAccents(
+    WIDTH / 3 - 45,
+    (noise(WIDTH / 3, frameCount / 240) * -300) / 4 + 300
+  );
+  createAccents(
+    (WIDTH * 2) / 3 - 45,
+    (noise((WIDTH * 2) / 3, frameCount / 240) * -300) / 4 + 300
+  );
+  createAccents(
+    WIDTH / 2 - 45,
+    (noise(WIDTH / 2, frameCount / 240) * -450) / 4 + 450
+  );
+  createAccents(
+    WIDTH / 4 - 45,
+    (noise(WIDTH / 4, frameCount / 240) * -450) / 4 + 450
+  );
+  createAccents(
+    (WIDTH * 3) / 4 - 45,
+    (noise((WIDTH * 3) / 4, frameCount / 240) * -450) / 4 + 450
+  );
+  noStroke();
+
+  drawBoat(boatPos);
+
+  yOffset += 1;
+  if (yOffset > 200) {
+    yOffset = 0;
+    noiseChange += 100;
+  }
 }
 
-// mousePressed() function is called once after every time a mouse button is pressed
-function mousePressed() {
-    // code to run when mouse is pressed
+function drawShore() {
+  let curX = 0;
+  const centerY = HEIGHT / 2 - 75 - SHORE;
+  const xOffset = WIDTH / 10;
+
+  fill(oceanColor);
+  noStroke;
+  beginShape();
+  curveVertex(-2 * xOffset, centerY);
+  curveVertex(-2 * xOffset, centerY);
+
+  for (let i = 0; i < 10 + 3; i++) {
+    curveVertex(
+      curX,
+      centerY * noise(curX * 0.005, frameCount / 120) + centerY + 40
+    );
+    curX += xOffset;
+  }
+
+  curveVertex(curX, centerY);
+  curveVertex(curX, centerY);
+  endShape();
+}
+
+function drawWave(yOffset) {
+  let curX = 0;
+  const centerY = HEIGHT / 2 - 75 - SHORE;
+  const xOffset = WIDTH / NUM_WAVE_POINTS;
+
+  const alpha = ((150 - yOffset) / 150) * 1000;
+  fill(waveColor[0], waveColor[1], waveColor[2], alpha);
+  strokeWeight(0.25);
+  beginShape();
+  curveVertex(-2 * xOffset, centerY);
+  curveVertex(-2 * xOffset, centerY);
+
+  for (let i = 0; i < NUM_WAVE_POINTS + 3; i++) {
+    curveVertex(
+      curX,
+      centerY * noise(curX * 0.5 + noiseChange, frameCount / 120) +
+        centerY +
+        yOffset
+    );
+    curX += xOffset;
+  }
+
+  curveVertex(curX, centerY);
+  curveVertex(curX, centerY);
+  endShape();
+}
+
+function drawHorizon() {
+  let curX = 0;
+  const centerY = HORIZON + 50;
+  const xOffset = WIDTH / 5;
+  let waveY = 0;
+
+  fill(oceanColor);
+  noStroke;
+  beginShape();
+  curveVertex(-2 * xOffset, centerY);
+  curveVertex(-2 * xOffset, centerY);
+
+  for (let i = 0; i < 5 + 3; i++) {
+    const yPoint = -centerY * noise(curX * 0.0005, frameCount / 180) + centerY;
+    curveVertex(curX, yPoint);
+    if (i == 4) {
+      waveY = yPoint;
+    }
+    curX += xOffset;
+  }
+
+  curveVertex(curX, centerY);
+  curveVertex(curX, centerY);
+  endShape();
+
+  return waveY;
+}
+
+function createAccents(x, y) {
+  let curX = x;
+  const centerY = y;
+  const xOffset = 30;
+
+  noFill();
+  stroke(waveAccents);
+  strokeWeight(5);
+  beginShape();
+  curveVertex(
+    x - 2 * xOffset,
+    (noise(curX * 0.05, frameCount / 240) * -centerY) / 4 + centerY
+  );
+  curveVertex(
+    x - 2 * xOffset,
+    (noise(curX * 0.05, frameCount / 240) * -centerY) / 4 + centerY
+  );
+
+  for (let i = 0; i < 3; i++) {
+    curveVertex(
+      curX,
+      (noise(curX * 0.05, frameCount / 240) * -centerY) / 4 + centerY
+    );
+    curX += xOffset;
+  }
+
+  curveVertex(
+    curX,
+    (noise(curX * 0.05, frameCount / 240) * -centerY) / 4 + centerY
+  );
+  curveVertex(
+    curX,
+    (noise(curX * 0.05, frameCount / 240) * -centerY) / 4 + centerY
+  );
+  endShape();
+}
+
+function drawBoat(y) {
+  fill(boatColor);
+  beginShape();
+  vertex(WIDTH / 2 - 40, y - 20);
+  vertex(WIDTH / 2 - 2, y - 20);
+  vertex(WIDTH / 2 - 2, y - 60);
+  vertex(WIDTH / 2 + 2, y - 60);
+  vertex(WIDTH / 2 + 2, y - 20);
+  vertex(WIDTH / 2 + 40, y - 20);
+  vertex(WIDTH / 2 + 20, y);
+  vertex(WIDTH / 2 - 20, y);
+  endShape(CLOSE);
+
+  fill(waveAccents);
+  beginShape();
+  vertex(WIDTH / 2 + 2, y - 60);
+  vertex(WIDTH / 2 + 2 + 25, y - 45);
+  vertex(WIDTH / 2 + 2, y - 30);
+  endShape(CLOSE);
 }
